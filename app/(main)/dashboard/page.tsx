@@ -1,4 +1,5 @@
 import ProductsChart from "@/components/products-chart";
+import ProductsPieChart from "@/components/products-pie-chart";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
@@ -45,6 +46,27 @@ export default async function DashboardPage() {
     totalProducts > 0 ? Math.round((lowStock / totalProducts) * 100) : 0;
   const outOfStockPercentage =
     totalProducts > 0 ? Math.round((outOfStock / totalProducts) * 100) : 0;
+
+  const efficiencyData = [
+    {
+      name: "In Stock",
+      value: inStock,
+      percentage: inStockPercentage,
+      color: "hsl(var(--primary))",
+    },
+    {
+      name: "Low Stock",
+      value: lowStock,
+      percentage: lowStockPercentage,
+      color: "hsl(var(--warning))",
+    },
+    {
+      name: "Out of Stock",
+      value: outOfStock,
+      percentage: outOfStockPercentage,
+      color: "hsl(var(--destructive))",
+    },
+  ];
 
   const now = new Date();
   const weeklyProductsData = [];
@@ -180,40 +202,10 @@ export default async function DashboardPage() {
               Current inventory status
             </p>
           </div>
-          <div className="flex items-center justify-center mb-6">
-            <div className="relative w-44 h-44">
-              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  className="text-muted/20"
-                />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  strokeDasharray={`${inStockPercentage * 2.51} 251`}
-                  strokeLinecap="round"
-                  className="text-primary transition-all duration-1000"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-4xl font-bold text-foreground">
-                  {inStockPercentage}%
-                </div>
-                <div className="text-sm text-muted-foreground font-medium">
-                  In Stock
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProductsPieChart
+            efficiencyData={efficiencyData}
+            inStockPercentage={inStockPercentage}
+          />
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5">
               <div className="flex items-center gap-2">
