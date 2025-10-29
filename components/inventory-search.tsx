@@ -15,6 +15,8 @@ export function InventorySearch() {
   const [searchValue, setSearchValue] = useState(searchParams.get("q") || "");
 
   useEffect(() => {
+    const currentQ = searchParams.get("q") || "";
+    if (currentQ === searchValue) return;
     const timer = setTimeout(() => {
       startTransition(() => {
         const params = new URLSearchParams(searchParams.toString());

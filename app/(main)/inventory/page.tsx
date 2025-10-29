@@ -17,21 +17,37 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { InventorySearch } from "@/components/inventory-search";
+import { formatDate, formatPrice } from "@/lib/formatters";
+import { InventoryPagination } from "@/components/pagination";
 
 export default async function InventoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string | undefined; page?: string | undefined }>;
 }) {
   const user = await getCurrentUser();
   const userId = user.id;
   const params = await searchParams;
   const q = params.q || "";
+  const page = Math.max(1, Number(params.page ?? 1));
+  const pageSize = 5;
 
-  const totalProducts = await prisma.product.findMany({
-    where: { userId, name: { contains: q, mode: "insensitive" } },
-    orderBy: { createdAt: "desc" },
-  });
+  const where = {
+    userId,
+    ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
+  };
+
+  const [totalCount, items] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const getStockStatus = (quantity: number, lowStockAt: number) => {
     if (quantity === 0)
@@ -41,29 +57,14 @@ export default async function InventoryPage({
     return { label: "In Stock", variant: "default" as const };
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(new Date(date));
-  };
-
-  const totalValue = totalProducts.reduce(
+  const totalValue = items.reduce(
     (sum, product) => sum + Number(product.price) * product.quantity,
     0
   );
-  const lowStockCount = totalProducts.filter(
+  const lowStockCount = items.filter(
     (p) => p.quantity > 0 && p.quantity <= p.lowStockAt
   ).length;
-  const outOfStockCount = totalProducts.filter((p) => p.quantity === 0).length;
+  const outOfStockCount = items.filter((p) => p.quantity === 0).length;
 
   return (
     <div className="space-y-6">
@@ -74,12 +75,11 @@ export default async function InventoryPage({
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total Products</CardDescription>
-            <CardTitle className="text-3xl">{totalProducts.length}</CardTitle>
+            <CardTitle className="text-3xl">{items.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -123,7 +123,7 @@ export default async function InventoryPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {totalProducts.map((product) => {
+              {items.map((product) => {
                 const status = getStockStatus(
                   product.quantity,
                   product.lowStockAt
@@ -168,6 +168,19 @@ export default async function InventoryPage({
           </Table>
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <InventoryPagination
+            currentPage={page}
+            totalPages={totalPages}
+            baseUrl="/inventory"
+            searchParams={{
+              q,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
