@@ -1,42 +1,23 @@
-export default function SettingsPage() {
+import { AccountSettings } from "@stackframe/stack";
+
+export default async function SettingsPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">
-          Configure your application settings
-        </p>
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border p-6">
-          <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
-          <p className="text-muted-foreground">
-            Manage your account preferences and profile information.
-          </p>
-        </div>
-        
-        <div className="rounded-lg border p-6">
-          <h2 className="text-xl font-semibold mb-4">Inventory Settings</h2>
-          <p className="text-muted-foreground">
-            Configure low stock alerts, categories, and inventory rules.
-          </p>
-        </div>
-        
-        <div className="rounded-lg border p-6">
-          <h2 className="text-xl font-semibold mb-4">Notifications</h2>
-          <p className="text-muted-foreground">
-            Set up email and system notifications for your inventory.
-          </p>
-        </div>
-        
-        <div className="rounded-lg border p-6">
-          <h2 className="text-xl font-semibold mb-4">Data & Privacy</h2>
-          <p className="text-muted-foreground">
-            Export your data and manage privacy settings.
-          </p>
+    <>
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
+            <p className="text-sm text-gray-500">
+              Manage your account settings and preferences.
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+      <div className="max-w-6xl">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <AccountSettings fullPage />
+        </div>
+      </div>
+    </>
   );
 }

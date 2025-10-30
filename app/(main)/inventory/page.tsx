@@ -19,6 +19,9 @@ import {
 import { InventorySearch } from "@/components/inventory-search";
 import { formatDate, formatPrice } from "@/lib/formatters";
 import { InventoryPagination } from "@/components/pagination";
+import { deleteProduct } from "@/lib/actions/products";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default async function InventoryPage({
   searchParams,
@@ -120,6 +123,7 @@ export default async function InventoryPage({
                 <TableHead>Status</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -160,6 +164,19 @@ export default async function InventoryPage({
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(product.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      <form
+                        action={async (formData: FormData) => {
+                          "use server";
+                          await deleteProduct(formData);
+                        }}
+                      >
+                        <Input type="hidden" name="id" value={product.id} />
+                        <Button variant="destructive">
+                          Delete
+                        </Button>
+                      </form>
                     </TableCell>
                   </TableRow>
                 );

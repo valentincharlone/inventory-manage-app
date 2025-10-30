@@ -1,3 +1,7 @@
+"use client";
+
+import type React from "react";
+import { useRouter } from "next/navigation";
 import {
   Pagination,
   PaginationContent,
@@ -21,11 +25,18 @@ export function InventoryPagination({
   baseUrl,
   searchParams,
 }: InventoryPaginationProps) {
+  const router = useRouter();
+
   if (totalPages <= 1) return null;
 
   const getPageUrl = (page: number) => {
     const params = new URLSearchParams({ ...searchParams, page: String(page) });
     return `${baseUrl}?${params.toString()}`;
+  };
+
+  const handlePageChange = (page: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    router.push(getPageUrl(page), { scroll: false });
   };
 
   const getVisiblePages = () => {
@@ -66,6 +77,11 @@ export function InventoryPagination({
         <PaginationItem>
           <PaginationPrevious
             href={currentPage <= 1 ? "#" : getPageUrl(currentPage - 1)}
+            onClick={
+              currentPage <= 1
+                ? undefined
+                : (e) => handlePageChange(currentPage - 1, e)
+            }
             aria-disabled={currentPage <= 1}
             className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
           />
@@ -87,6 +103,7 @@ export function InventoryPagination({
             <PaginationItem key={pageNumber}>
               <PaginationLink
                 href={getPageUrl(pageNumber)}
+                onClick={(e) => handlePageChange(pageNumber, e)}
                 isActive={isCurrentPage}
               >
                 {pageNumber}
@@ -98,6 +115,11 @@ export function InventoryPagination({
         <PaginationItem>
           <PaginationNext
             href={currentPage >= totalPages ? "#" : getPageUrl(currentPage + 1)}
+            onClick={
+              currentPage >= totalPages
+                ? undefined
+                : (e) => handlePageChange(currentPage + 1, e)
+            }
             aria-disabled={currentPage >= totalPages}
             className={
               currentPage >= totalPages ? "pointer-events-none opacity-50" : ""

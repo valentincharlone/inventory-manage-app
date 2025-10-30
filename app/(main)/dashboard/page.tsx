@@ -101,7 +101,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background p-6 lg:p-8">
+    <div className="min-h-screen bg-background ">
       <div className="mb-10">
         <h1 className="text-4xl font-bold text-foreground mb-2 tracking-tight">
           Dashboard
