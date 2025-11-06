@@ -20,8 +20,8 @@ import { InventorySearch } from "@/components/inventory-search";
 import { formatDate, formatPrice } from "@/lib/formatters";
 import { InventoryPagination } from "@/components/pagination";
 import { deleteProduct } from "@/lib/actions/products";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+// Removed inline form controls in favor of ConfirmDelete component
+import { ConfirmDelete } from "@/components/confirm-delete";
 
 export default async function InventoryPage({
   searchParams,
@@ -166,17 +166,13 @@ export default async function InventoryPage({
                       {formatDate(product.createdAt)}
                     </TableCell>
                     <TableCell>
-                      <form
+                      <ConfirmDelete
+                        id={product.id}
                         action={async (formData: FormData) => {
                           "use server";
                           await deleteProduct(formData);
                         }}
-                      >
-                        <Input type="hidden" name="id" value={product.id} />
-                        <Button variant="destructive">
-                          Delete
-                        </Button>
-                      </form>
+                      />
                     </TableCell>
                   </TableRow>
                 );
