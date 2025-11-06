@@ -8,7 +8,8 @@ export async function middleware(request: NextRequest) {
   const user = await stackServerApp.getUser();
   const isAuthenticated = !!user;
 
-  if (isAuthenticated && pathname.startsWith("/sign-in")) {
+  // If already authenticated and accessing sign-in page or root, send to dashboard
+  if (isAuthenticated && (pathname === "/" || pathname.startsWith("/sign-in"))) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
